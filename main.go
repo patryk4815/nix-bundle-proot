@@ -20,7 +20,7 @@ import (
 	"time"
 )
 
-//go:embed proot.x86_64-linux
+//go:embed proot-static
 var ProotContent []byte
 
 //go:embed rootfs.tar.gz
@@ -82,7 +82,7 @@ func run(ctx context.Context) error {
 
 	envs := []string{}
 	for _, env := range os.Environ() {
-		if strings.HasPrefix("PATH=", env) {
+		if strings.HasPrefix(env, "PATH=") {
 			env = "PATH=" + filepath.Join(tmpDir, "bin") + ":" + os.Getenv("PATH")
 		}
 		envs = append(envs, env)
@@ -94,7 +94,6 @@ func run(ctx context.Context) error {
 	cmd.Stderr = os.Stderr
 	cmd.WaitDelay = time.Second * 5 // after 5s send sigkill
 	cmd.Env = envs
-	log.Fatalf("envs = %#v\n", envs)
 
 	// send KILL to child process when parent DIE
 	cmd.SysProcAttr = &syscall.SysProcAttr{

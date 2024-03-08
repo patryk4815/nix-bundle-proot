@@ -11,6 +11,11 @@
       rootfsName = drv: ((drv.name or drv.pname or "image") + ".rootfs");
       prootName = drv: ((drv.name or drv.pname or "image") + ".proot");
 
+      prootStaticBinary = pkgs.fetchurl {
+        url = "https://proot.gitlab.io/proot/bin/proot";  # version latest
+        hash = "sha256-t/Kt9aIlAAoWT0kFqr7+6+EcTB1b7f9eH+iGbEjdcNI=";
+      };
+
       toDockerImage = drv: (
         pkgs.dockerTools.buildImage {
           name = rootfsName drv;
@@ -29,6 +34,7 @@
       toProot = drv: pkgs.runCommand (prootName drv) {
         nativeBuildInputs = [ pkgs.go_1_21 ];
         rootfs = toDockerImage drv;
+        proot = prootStaticBinary;
         src = self;
       } ''
         export HOME=$(mktemp -d)
@@ -36,7 +42,7 @@
         cd build
         cp $rootfs rootfs.tar.gz
         cp $src/main.go .
-        cp $src/proot.x86_64-linux .
+        cp $proot proot-static
         cp $src/go.mod .
         cp $src/go.sum .
         cp -rf $src/vendor .
