@@ -1,0 +1,7 @@
+# github.com/amenzhinsky/go-memexec v0.7.1
+## explicit; go 1.19
+github.com/amenzhinsky/go-memexec
+# golang.org/x/sys v0.0.0-20210903071746-97244b99971b
+## explicit; go 1.17
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
