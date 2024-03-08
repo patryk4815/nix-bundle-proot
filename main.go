@@ -83,9 +83,16 @@ func run(ctx context.Context) error {
 	envs := []string{}
 	for _, env := range os.Environ() {
 		if strings.HasPrefix(env, "PATH=") {
-			env = "PATH=" + filepath.Join(tmpDir, "bin") + ":" + os.Getenv("PATH")
+			continue
 		}
 		envs = append(envs, env)
+	}
+	if os.Getenv("PROOT_IMPURE_PATH") == "1" {
+		path := "PATH=" + filepath.Join(tmpDir, "bin") + ":" + os.Getenv("PATH")
+		envs = append(envs, path)
+	} else {
+		path := "PATH=" + filepath.Join(tmpDir, "bin")
+		envs = append(envs, path)
 	}
 
 	cmd := exe.CommandContext(ctx, args...)
