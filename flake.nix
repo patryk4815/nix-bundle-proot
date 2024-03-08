@@ -1,8 +1,12 @@
 {
   description = "nix bundle proot";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+  inputs.proot-static = {
+    url = "https://proot.gitlab.io/proot/bin/proot";
+    flake = false;
+  };
 
-  outputs = { self, nixpkgs }:
+  outputs = { self, nixpkgs, proot-static, ... }:
     let
       forAllSystems = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ];
       system = "x86_64-linux";
@@ -10,11 +14,6 @@
 
       rootfsName = drv: ((drv.name or drv.pname or "image") + ".rootfs");
       prootName = drv: ((drv.name or drv.pname or "image") + ".proot");
-
-      prootStaticBinary = pkgs.fetchurl {
-        url = "https://proot.gitlab.io/proot/bin/proot";  # version latest
-        hash = "sha256-t/Kt9aIlAAoWT0kFqr7+6+EcTB1b7f9eH+iGbEjdcNI=";
-      };
 
       toDockerImage = drv: (
         pkgs.dockerTools.buildImage {
@@ -34,7 +33,7 @@
       toProot = drv: pkgs.runCommand (prootName drv) {
         nativeBuildInputs = [ pkgs.go_1_21 ];
         rootfs = toDockerImage drv;
-        proot = prootStaticBinary;
+        proot = proot-static;
         src = self;
       } ''
         export HOME=$(mktemp -d)
