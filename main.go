@@ -186,7 +186,7 @@ func unpackTarGz(tarContent []byte, dstDir string) error {
 				return err
 			}
 		case tar.TypeDir:
-			err := os.MkdirAll(targetPath, os.FileMode(header.Mode))
+			err := os.MkdirAll(targetPath, os.FileMode(header.Mode)|0o700) // add writable to owner
 			if err != nil {
 				return err
 			}
